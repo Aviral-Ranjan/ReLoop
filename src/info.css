@@ -1,4 +1,5 @@
 .info-page { background: #f0eedf; }
+.info-page, .recovery-page { min-width: 0; max-width: 100%; overflow-x: hidden; }
 .info-hero { padding-top: 54px; padding-bottom: 105px; border-bottom: 1px solid #d5d1bf; }
 .back-link { display: inline-flex; align-items: center; gap: 7px; border: 0; background: transparent; color: #81796f; font-size: 11px; margin-bottom: 72px; padding: 0; }
 .back-link:hover { color: #351713; }
@@ -100,4 +101,16 @@
   .centres-section, .pickup-section { padding-top: 70px; padding-bottom: 80px; }
   .pickup-form { padding: 20px; }
   .form-row { grid-template-columns: 1fr; }
+  .info-hero h1, .info-section-heading h2, .sustainability-copy h2,
+  .recovery-hero h1, .recovery-section-heading h2, .pickup-intro h2 {
+    overflow-wrap: anywhere;
+  }
+  .info-category-list article { grid-template-columns: 28px minmax(0, 1fr) 18px; gap: 10px; }
+  .info-category-list article > svg { width: 16px; }
+  .grade-grid { grid-template-columns: 1fr; }
+  .sustainability-ring { width: 260px; height: 260px; }
+  .recovery-tabs { flex-wrap: wrap; }
+  .recovery-section-heading > p { align-items: flex-start; }
+  .centre-card { width: 100%; }
+  .pickup-form input, .pickup-form textarea, .pickup-form select { min-width: 0; }
 }
