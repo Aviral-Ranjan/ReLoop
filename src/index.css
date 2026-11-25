@@ -94,6 +94,16 @@ h1 em, h2 em { font-style: normal; color: #a45e52; }
 .result-actions { grid-column: 1 / -1; border-top: 1px solid #d5d1bf; display: flex; align-items: center; gap: 12px; }
 .result-actions > div { margin-right: auto; }
 .result-actions .button { min-height: 39px; padding: 0 14px; font-size: 10px; }
+.life-estimate { grid-column: 1 / -1; border-top: 1px solid #d5d1bf; padding: 28px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .8fr); gap: 20px 36px; align-items: start; }
+.life-estimate-heading h3 { font-family: Manrope; font-size: 20px; font-weight: 600; letter-spacing: -.04em; margin: 9px 0 7px; }
+.life-estimate-heading > p, .life-estimate-result span, .life-estimate-result > p { color: #81796f; font-size: 11px; line-height: 1.6; }
+.life-estimate-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.life-estimate-inputs label { color: #81796f; display: grid; gap: 7px; font-size: 10px; }
+.life-estimate-inputs select, .life-estimate-inputs input { width: 100%; min-width: 0; min-height: 40px; border: 1px solid #d5d1bf; border-radius: 0; background: #f0eedf; color: #351713; font: inherit; font-size: 11px; padding: 0 10px; }
+.life-estimate-inputs select:focus, .life-estimate-inputs input:focus { outline: 1px solid #a45e52; border-color: #a45e52; }
+.life-estimate-result { background: #efeade; border-left: 2px solid #a45e52; padding: 15px 17px; display: flex; flex-direction: column; gap: 5px; }
+.life-estimate-result strong { color: #351713; font-family: Manrope; font-size: 18px; font-weight: 600; }
+.life-estimate-disclaimer { color: #81796f; font-size: 9px; line-height: 1.6; }
 .dark-section { background: #351713; color: #f0eedf; padding: 100px 0 108px; }
 .light { color: #b9afa1; }
 .dark-section h2 { font-size: clamp(40px, 6vw, 76px); line-height: 1.02; font-weight: 500; margin-top: 23px; }
@@ -147,6 +157,9 @@ h1 em, h2 em { font-style: normal; color: #a45e52; }
   .detail-grid { grid-template-columns: 1fr; }
   .result-actions { align-items: stretch; }
   .result-actions .button { width: 100%; }
+  .life-estimate { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 20px; }
+  .life-estimate-inputs { grid-template-columns: minmax(0, 1fr); }
+  .life-estimate-result strong { font-size: 16px; }
   .section-heading h2, .rewards-copy h2, .dark-section h2 { overflow-wrap: anywhere; }
   .step { grid-template-columns: auto 1px minmax(0, 1fr); }
   .step-content { min-width: 0; }

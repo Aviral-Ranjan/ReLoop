@@ -22,6 +22,15 @@ const gradeDescriptions = {
   C: "Usable for parts or recovery · visible wear",
   D: "End-of-life condition · recycle safely"
 };
+const conditionGrades = {
+  "almost-new": "A",
+  "working-well": "B",
+  worn: "C",
+  "not-working": "D"
+};
+const gradeConditions = { A: "almost-new", B: "working-well", C: "worn", D: "not-working" };
+const conditionFactors = { "almost-new": 1, "working-well": 0.7, worn: 0.35, "not-working": 0 };
+const typicalLifespans = { Smartphone: 4, Laptop: 5, Earphones: 3, Accessory: 4 };
 
 function classifyLocally(fileName = "", selectedDemo = "") {
   const name = fileName.toLowerCase();
@@ -54,6 +63,8 @@ function App() {
   const [status, setStatus] = useState("idle");
   const [result, setResult] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [lifeCondition, setLifeCondition] = useState("");
+  const [deviceAge, setDeviceAge] = useState("");
   const [notice, setNotice] = useState("");
 
   const scrollTo = (id) => {
@@ -101,9 +112,15 @@ function App() {
       const response = await fetch("http://localhost:4000/api/waste/classify", { method: "POST", body: data });
       if (!response.ok) throw new Error("The classification service could not respond.");
       const payload = await response.json();
-      setResult(payload.result); setQuantity(1); setStatus("success");
+      setResult(payload.result);
+      setLifeCondition(gradeConditions[payload.result.conditionGrade] || "working-well");
+      setDeviceAge("");
+      setQuantity(1); setStatus("success");
     } catch {
-      setResult(localResult); setQuantity(1); setStatus("success");
+      setResult(localResult);
+      setLifeCondition(gradeConditions[localResult.conditionGrade] || "working-well");
+      setDeviceAge("");
+      setQuantity(1); setStatus("success");
     }
   };
   const clearSelection = () => {
@@ -148,9 +165,10 @@ function App() {
         {result && <section className="results-section container" aria-live="polite">
           <div className="result-heading"><div><div className="eyebrow">Classification report</div><h2>Your recovery snapshot</h2></div><span className="demo-pill"><span /> Demo mode</span></div>
           <div className="results-card">
-            <div className="result-main"><div className="result-label">Identification</div><div className="result-category"><div className="result-icon"><Smartphone size={24} /></div><div><h3>{result.category}</h3><p>{result.productType}</p></div></div><div className="detail-grid"><div><span>E-waste grade</span><strong>{result.conditionGrade}</strong><small>{gradeDescriptions[result.conditionGrade]}</small></div><div><span>Classification confidence</span><strong>{result.confidence}%</strong><small>Lightweight prototype estimate</small></div></div></div>
+            <div className="result-main"><div className="result-label">Identification</div><div className="result-category"><div className="result-icon"><Smartphone size={24} /></div><div><h3>{result.category}</h3><p>{result.productType}</p></div></div><div className="detail-grid"><div><span>E-waste grade</span><strong>{conditionGrades[lifeCondition] || result.conditionGrade}</strong><small>{gradeDescriptions[conditionGrades[lifeCondition] || result.conditionGrade]}</small></div><div><span>Classification confidence</span><strong>{result.confidence}%</strong><small>Lightweight prototype estimate</small></div></div></div>
             <div className="reward-panel"><div className="result-label">Estimated minimum reward</div><div className="reward-value">₹{total.toLocaleString("en-IN")}</div><p>Indicative estimate for {quantity} {quantity === 1 ? "item" : "items"}. Final reward is confirmed after physical inspection and successful pickup.</p><div className="quantity"><span>Quantity</span><div><button onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="Decrease quantity">−</button><strong>{quantity}</strong><button onClick={() => setQuantity(quantity + 1)} aria-label="Increase quantity">+</button></div></div></div>
             <div className="result-actions"><div><div className="result-label">Next step</div><p>Choose how you would like to continue.</p></div><button className="button button-dark" onClick={() => openRecovery("pickup")}>Schedule a Pickup <ArrowUpRight size={16} /></button><button className="button button-outline" onClick={() => openRecovery("centres")}>Find a Recycling Centre</button></div>
+            <UsefulLifeEstimate result={result} condition={lifeCondition} setCondition={setLifeCondition} age={deviceAge} setAge={setDeviceAge} />
           </div>
         </section>}
 
@@ -165,6 +183,45 @@ function App() {
       {notice && <div className="notice" role="status">{notice}<button onClick={() => setNotice("")} aria-label="Close notice"><X size={16} /></button></div>}
     </div>
   );
+}
+
+function UsefulLifeEstimate({ result, condition, setCondition, age, setAge }) {
+  const ageValue = age === "" ? null : Number(age);
+  const validAge = ageValue !== null && Number.isFinite(ageValue) && ageValue >= 0 && ageValue <= 30;
+  const lifespanYears = typicalLifespans[result.category] || 4;
+  const remainingDays = validAge
+    ? Math.max(0, Math.round((lifespanYears - ageValue) * 365 * conditionFactors[condition]))
+    : null;
+  const suggestedDate = remainingDays === null ? null : new Date(Date.now() + remainingDays * 86400000);
+
+  return <section className="life-estimate" aria-live="polite">
+    <div className="life-estimate-heading">
+      <div className="eyebrow">Useful life estimate</div>
+      <h3>When should you plan for its next step?</h3>
+      <p>Share the device age and current condition for a simple planning estimate.</p>
+    </div>
+    <div className="life-estimate-inputs">
+      <label>Current condition
+        <select value={condition} onChange={(event) => setCondition(event.target.value)}>
+          <option value="almost-new">Almost new</option>
+          <option value="working-well">Working well</option>
+          <option value="worn">Worn or needs repair</option>
+          <option value="not-working">Not working</option>
+        </select>
+      </label>
+      <label>Device age (years)
+        <input type="number" min="0" max="30" step="0.1" value={age} onChange={(event) => setAge(event.target.value)} placeholder="e.g. 1.5" />
+      </label>
+    </div>
+    <div className="life-estimate-result">
+      {remainingDays === null
+        ? <p>Enter an age from 0 to 30 years to see an estimated timeline.</p>
+        : remainingDays === 0
+          ? <><strong>Consider repair or recycling now</strong><span>Based on the age and condition you entered.</span></>
+          : <><strong>About {remainingDays.toLocaleString("en-IN")} days left</strong><span>Consider arranging repair or responsible recycling around {suggestedDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}.</span></>}
+    </div>
+    <p className="life-estimate-disclaimer">Illustrative estimate only, not a prediction. It uses prototype lifespan assumptions (smartphone 4 years, laptop 5, earphones 3, accessories 4) and your condition input. Actual life depends on use, repair, and safety; recycle sooner if the device is unsafe.</p>
+  </section>;
 }
 
 function RecoveryPage({ mode, onBack, onSwitch }) {

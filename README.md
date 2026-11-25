@@ -30,3 +30,7 @@ The API runs on `http://localhost:4000`. The prototype includes a lightweight lo
 - D: end-of-life condition
 
 This is not a trained image-recognition model: image contents alone cannot be reliably classified without a model. For the supplied examples, filenames such as `mobile-image.png`, `laptop-image.png`, and `earphone-image.png` are recognized. MongoDB is optional; when it is unavailable the API returns a clear `saved: false` persistence status instead of claiming a record was stored.
+
+## Useful-life estimate
+
+After classification, users can enter the device's age and self-assessed condition to see an illustrative remaining-useful-life estimate in days and a suggested date to consider repair or responsible recycling. The prototype uses configurable baseline assumptions of 4 years for smartphones, 5 years for laptops, 3 years for earphones, and 4 years for accessories, adjusted by the selected condition. These figures are for demonstration and planning only; they are not product-specific predictions or a substitute for inspection.
