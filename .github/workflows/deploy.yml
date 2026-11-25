@@ -18,11 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,13 +37,21 @@ jobs:
       - name: Build React App
         run: npm run build
 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
-
       - name: Upload Build Files
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Deploy to GitHub Pages
         id: deployment
